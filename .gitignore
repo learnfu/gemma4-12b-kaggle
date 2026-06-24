@@ -1,0 +1,27 @@
+# Binaries
+llama-bin/
+cloudflared
+
+# Model (6.7 GB, download via setup.sh)
+models/
+
+# Logs
+logs/
+*.log
+
+# Environment / secrets
+.env
+.env.*
+*.token
+*.key
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wrangler/Cloudflare (local state)
+.wrangler/

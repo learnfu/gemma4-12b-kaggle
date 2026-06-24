@@ -1,0 +1,6 @@
+name = "gemma4-proxy"
+main = "index.js"
+compatibility_date = "2026-06-24"
+
+[observability]
+enabled = true
