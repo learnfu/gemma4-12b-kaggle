@@ -19,13 +19,22 @@ echo "=== Gemma 4 12B Setup ==="
 
 # 1. Download llama.cpp CUDA binary
 if [ ! -f "$LLAMA_BIN" ]; then
-  echo "[1/3] Downloading llama.cpp CUDA binary..."
-  wget -qO /tmp/llama.tar.gz \
-    "https://github.com/ai-dock/llama.cpp-cuda/releases/download/v0.0.2/llama.cpp-cuda-12.8-amd64.tar.gz"
-  tar -xzf /tmp/llama.tar.gz -C "$BIN_DIR" --strip-components=1
-  chmod +x "$LLAMA_BIN"
-  rm /tmp/llama.tar.gz
-  ldconfig -N -n "$BIN_DIR"
+  # Try copying from existing location first
+  if [ -f "/kaggle/working/llama/cuda-12.8/llama-server" ]; then
+    echo "[1/3] Copying existing CUDA binary..."
+    cp -r /kaggle/working/llama/cuda-12.8/* "$BIN_DIR/"
+    chmod +x "$LLAMA_BIN"
+    ldconfig -N -n "$BIN_DIR"
+  else
+    echo "[1/3] Downloading llama.cpp CUDA binary..."
+    wget -qO /tmp/llama.tar.gz --timeout=30 \
+      "https://github.com/ai-dock/llama.cpp-cuda/releases/download/b9775/llama.cpp-b9775-cuda-12.8-amd64.tar.gz" \
+      || { echo "  Download failed"; exit 1; }
+    tar -xzf /tmp/llama.tar.gz -C "$BIN_DIR" --strip-components=1
+    chmod +x "$LLAMA_BIN"
+    rm /tmp/llama.tar.gz
+    ldconfig -N -n "$BIN_DIR"
+  fi
 else
   echo "[1/3] Binary already exists, skipping download"
   chmod +x "$LLAMA_BIN" 2>/dev/null || true
@@ -41,7 +50,7 @@ from huggingface_hub import hf_hub_download
 path = hf_hub_download('unsloth/gemma-4-12B-it-qat-GGUF', 'gemma-4-12B-it-qat-UD-Q4_K_XL.gguf')
 import os
 os.symlink(path, '$MODEL_DIR/gemma-4-12B-it-qat-UD-Q4_K_XL.gguf')
-" 2>/dev/null || wget -qO "$MODEL_FILE" \
+" 2>/dev/null || wget -qO "$MODEL_FILE" --timeout=60 \
   "https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF/resolve/main/gemma-4-12B-it-qat-UD-Q4_K_XL.gguf"
   echo "  Model: $MODEL_FILE"
 else
