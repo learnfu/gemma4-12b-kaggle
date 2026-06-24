@@ -69,22 +69,10 @@ for i in {1..15}; do
   curl -s --max-time 2 http://localhost:$PORT/health >/dev/null 2>&1 && echo " READY!" && break
   [ "$i" -eq 15 ] && echo " TIMEOUT" && exit 1
 done
-sleep 2
 
 echo ""
-echo "=== Gemma 4 12B is running! ==="
+echo "=== Gemma 4 12B is ready! ==="
 echo "API: http://localhost:$PORT/v1/chat/completions"
-echo ""
-echo "Quick test:"
-for attempt in 1 2; do
-  RES=$(curl -s --max-time 30 http://localhost:$PORT/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -d '{"messages":[{"role":"user","content":"Say hello in one word"}],"max_tokens":10,"temperature":0}' \
-    | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('choices',[{}])[0].get('message',{}).get('content','FAIL'))" 2>/dev/null)
-  [ "$RES" != "FAIL" ] && echo "  Response: $RES" && break
-  [ "$attempt" = "1" ] && echo "  (retrying...)" && sleep 3
-done
-[ "$RES" = "FAIL" ] && echo "  Quick test failed - server may still be warming up"
 echo ""
 
 # 4. Tunnel (ngrok or Cloudflare)
@@ -136,10 +124,9 @@ fi
 
 # Print tunnel info
 if [ -n "$URL" ]; then
-  echo ""
   echo "  Tunnel URL: $URL"
   echo "$URL" > "$LOG_DIR/tunnel_url.txt"
-  echo ""
-  echo "  For a permanent URL, deploy worker/ via Cloudflare Workers"
-  echo "  and update the TUNNEL_URL secret on each restart."
 fi
+
+echo ""
+echo "Ready to use. Run: ./gemma4.sh chat"
