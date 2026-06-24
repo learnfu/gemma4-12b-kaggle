@@ -116,7 +116,12 @@ except: pass
 
 elif [ -f "$CF" ]; then
   echo "[4/4] Starting Cloudflare tunnel..."
-  chmod +x "$CF" 2>/dev/null || true
+  python3 "$SCRIPT_DIR/tunnel.py" "$PORT" "$CF" "$LOG_DIR"
+
+elif wget -qO "$CF" --timeout=30 \
+  "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64" 2>/dev/null; then
+  chmod +x "$CF"
+  echo "[4/4] Cloudflared downloaded. Starting tunnel..."
   python3 "$SCRIPT_DIR/tunnel.py" "$PORT" "$CF" "$LOG_DIR"
   echo -n "  Tunnel: "
   for i in {1..20}; do
