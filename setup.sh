@@ -105,6 +105,13 @@ except: pass
 elif [ -f "$CF" ]; then
   echo "[4/4] Starting Cloudflare tunnel..."
   python3 "$SCRIPT_DIR/tunnel.py" "$PORT" "$CF" "$LOG_DIR"
+  echo -n "  Tunnel: "
+  for i in {1..20}; do
+    URL=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' "$LOG_DIR/cf.log" 2>/dev/null | head -1 || true)
+    [ -n "$URL" ] && echo "$URL" && break
+    sleep 1
+  done
+  [ -z "$URL" ] && echo "failed"
 
 elif wget -qO "$CF" --timeout=30 \
   "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64" 2>/dev/null; then
