@@ -76,6 +76,16 @@ echo "API: http://localhost:$PORT/v1/chat/completions"
 echo ""
 
 # 4. Tunnel (ngrok or Cloudflare)
+# Verify existing cloudflared binary
+if [ -f "$CF" ]; then
+  if [ ! -s "$CF" ] || ! "$CF" --version >/dev/null 2>&1; then
+    echo "  Local cloudflared binary is corrupted or non-functional. Removing..."
+    rm -f "$CF"
+  else
+    chmod +x "$CF" 2>/dev/null || true
+  fi
+fi
+
 URL=""
 if [ -n "${ngrok_token:-}" ] || [ -n "${NGROK_AUTH_TOKEN:-}" ]; then
   echo "[4/4] Starting ngrok tunnel..."
